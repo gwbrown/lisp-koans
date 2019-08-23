@@ -20,38 +20,69 @@
 
 ;; Modified from Ruby Koans: about_scoring_project.rb
 
-; *Greed* is a dice game where you roll up to five dice to accumulate
-; points.  The following "score" function will be used to calculate the
-; score of a single roll of the dice.
-;
-; A greed roll is scored as follows:
-;
-; * A set of three ones is 1000 points
-;
-; * A set of three numbers (other than ones) is worth 100 times the
-;   number. (e.g. three fives is 500 points).
-;
-; * A one (that is not part of a set of three) is worth 100 points.
-;
-; * A five (that is not part of a set of three) is worth 50 points.
-;
-; * Everything else is worth 0 points.
-;
-;
-; Examples:
-;
-; (score '(1 1 1 5 1)) => 1150 points
-; (score '(2 3 4 6 2)) => 0 points
-; (score '(3 4 5 3 3)) => 350 points
-; (score '(1 5 1 2 4)) => 250 points
-;
-; More scoring examples are given in the tests below:
-;
-; Your goal is to write the score method.
+          ; *Greed* is a dice game where you roll up to five dice to accumulate
+          ; points.  The following "score" function will be used to calculate the
+          ; score of a single roll of the dice.
+          ;
+          ; A greed roll is scored as follows:
+          ;
+          ; * A set of three ones is 1000 points
+          ;
+          ; * A set of three numbers (other than ones) is worth 100 times the
+          ;   number. (e.g. three fives is 500 points).
+          ;
+          ; * A one (that is not part of a set of three) is worth 100 points.
+          ;
+          ; * A five (that is not part of a set of three) is worth 50 points.
+          ;
+          ; * Everything else is worth 0 points.
+          ;
+          ;
+          ; Examples:
+          ;
+          ; (score '(1 1 1 5 1)) => 1150 points
+          ; (score '(2 3 4 6 2)) => 0 points
+          ; (score '(3 4 5 3 3)) => 350 points
+          ; (score '(1 5 1 2 4)) => 250 points
+          ;
+          ; More scoring examples are given in the tests below:
+          ;
+          ; Your goal is to write the score method.
+
+;; (defun score (dice)
+;;   (cond
+;;     ((equalp dice nil) 0)
+;;     ((equalp dice '(1 1 1)) 1000)
+;;     (())))
+;;           ; You need to write this method
+;; (defun dice (dice)
+;;   (if (eq dice nil) 0
+;;    (let ((dice (sort (copy-list dice) #'<)))
+;;      (reduce #'+ dice))))
+(defun score-num (num count)
+  (let ((lone-score (cond
+                      ((= 1 num) 100)
+                      ((= 5 num) 50)
+                      (t 0)))
+        (coefficient (if (= 1 num) 10 1))) 
+    (+ (* coefficient num 100 (floor (/ count 3))) (* lone-score (mod count 3)))))
 
 (defun score (dice)
-  ; You need to write this method
-)
+  (if (eq dice nil) 0
+    (loop for die in dice
+      counting (= 1 die) into ones
+      counting (= 2 die) into twos
+      counting (= 3 die) into threes
+      counting (= 4 die) into fours
+      counting (= 5 die) into fives
+      counting (= 6 die) into sixes
+      finally (return (+
+                        (score-num 1 ones)
+                        (score-num 2 twos)
+                        (score-num 3 threes)
+                        (score-num 4 fours)
+                        (score-num 5 fives)
+                        (score-num 6 sixes))))))
 
 (define-test test-score-of-an-empty-list-is-zero
     (assert-equal 0 (score nil)))
@@ -75,11 +106,11 @@
 
 (define-test test-score-of-other-triples-is-100x
     (assert-equal 200  (score '(2 2 2)))
-    (assert-equal 300  (score '(3 3 3)))
-    (assert-equal 400  (score '(4 4 4)))
-    (assert-equal 500  (score '(5 5 5)))
-    (assert-equal 600  (score '(6 6 6))))
+  (assert-equal 300  (score '(3 3 3)))
+  (assert-equal 400  (score '(4 4 4)))
+  (assert-equal 500  (score '(5 5 5)))
+  (assert-equal 600  (score '(6 6 6))))
 
 (define-test test-score-of-mixed-is-sum
     (assert-equal 250  (score '(2 5 2 2 3)))
-    (assert-equal 550  (score '(5 5 5 5))))
+  (assert-equal 550  (score '(5 5 5 5))))
