@@ -22,7 +22,7 @@
 (defvar some-primes '(10301 11311 19991 999565999))
 
 (define-test test-dolist
-    "'dolist' iterates over values in a list, binding each value to a lexical
+  "'dolist' iterates over values in a list, binding each value to a lexical
       variable in turn"
   (let ((how-many-in-list 0)
         (biggest-in-list (first some-primes)))
@@ -34,8 +34,8 @@
     (assert-equal 4 how-many-in-list)
     (assert-equal 999565999 biggest-in-list))
   (let ((sum 0))
-    "write your own dolist here to calculate the sum of some-primes"
-    "you may be interested in investigating the 'incf' function"
+    "write your own dolist here to calculate the sum of some-primes
+    you may be interested in investigating the 'incf' function"
     (dolist (one-prime some-primes)
       (setf sum (+ sum one-prime)))
     (assert-equal 999607602 sum)))

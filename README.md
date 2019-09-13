@@ -74,5 +74,12 @@ The Common Lisp koans are based on the Python koans and Ruby koans projects.
 Additionally, many of the tests are based on new material that is special
 to Common Lisp.
 
-Note that the unit on threads uses an SBCL specific threading API.  A reader
-macro will remove this unit on Lisp implementations other than SBCL.
+Note that the unit on threads uses bordeaux-threads and bt-semaphore.
+The user must have Quicklisp installed and loaded or a reader macro
+will remove the instructions to run :threads.
+For information and instructions on installing Quicklisp
+please see:
+https://www.quicklisp.org/beta/
+The user can either remove #+quicklisp and uncomment
+(load "~/.quicklisp/setup.lisp") in threads.lsp, or  if they know
+quicklisp will be loaded while running contemplate.lsp do nothing.
