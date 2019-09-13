@@ -13,29 +13,29 @@
 ;;   limitations under the License.
 
 
-; based on about_dice_project.rb
+;; based on about_dice_project.rb
 
 ;; In this project we are going to build a CLOS class representing
 ;; a simple set of dice.  There are only two operations on the dice,
 ;; reading the values, and re-rolling.
 
 
-;;  YOU WRITE THIS PART:
 (defclass dice-set ()
-  () ;; WRITE DICE-SET CLASS BODY HERE
-)
+  (results) ;; WRITE DICE-SET CLASS BODY HERE
+  )
 
 (defmethod get-values ((object dice-set))
-  ;; WRITE GET-VALUES METHOD DEFINITION HERE
-)
+  (slot-value object 'results))
 
 (defmethod roll (how-many (object dice-set))
-  ;; WRITE ROLL METHOD DEFINITION HERE
-)
+  (let ((result nil))
+    (dotimes (i how-many)
+      (push (random 6) result))
+    (setf (slot-value object 'results) result)))
 
 
 (define-test test-create-dice-set
-;; tests making an instance of the dice-set
+    ;; tests making an instance of the dice-set
     (let ((dice (make-instance 'dice-set)))
       (assert-true dice)))
 
