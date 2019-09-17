@@ -21,8 +21,7 @@
 
 
 (defclass dice-set ()
-  (results) ;; WRITE DICE-SET CLASS BODY HERE
-  )
+  (results))
 
 (defmethod get-values ((object dice-set))
   (slot-value object 'results))
