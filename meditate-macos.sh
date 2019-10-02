@@ -24,7 +24,7 @@ choose_command_line() {
             echo "sbcl --script contemplate.lsp"
         ;;
 	'ros-sbcl' )
-            echo "ros run -- --script contemplate.lsp"
+            echo "ros run -l contemplate.lsp -e (quit)"
 	;;
         * )
             echo ""

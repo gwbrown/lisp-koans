@@ -49,14 +49,14 @@
     (assert-equal *greeting* "hello world")
     (setf greeting-thread (bordeaux-threads:make-thread #'sets-socal-greeting))
     (bordeaux-threads:join-thread greeting-thread)
-    (assert-equal *greeting* ____)))
+    (assert-equal *greeting* "Sup, dudes")))
 
 
 (define-test test-join-thread-return-value
     "the return value of the thread is passed in bordeaux-threads:join-thread"
   (let ((my-thread (bordeaux-threads:make-thread
                     (lambda () (* 11 99)))))
-    (assert-equal ____ (bordeaux-threads:join-thread my-thread))))
+    (assert-equal 1089 (bordeaux-threads:join-thread my-thread))))
 
 
 (define-test test-threads-can-have-names
@@ -66,7 +66,7 @@
          (bordeaux-threads:make-thread #'+
                                 :name "what is the sum of no things adding?")))
     (assert-equal (bordeaux-threads:thread-name empty-plus-thread)
-                  ____)))
+                  "what is the sum of no things adding?")))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -89,7 +89,7 @@
                    (bordeaux-threads:make-thread
                     #'(lambda ()
                         (returns-hello-name "Buster")))))
-  (assert-equal ____
+  (assert-equal '((3 4 5))
                 (bordeaux-threads:join-thread
                  (bordeaux-threads:make-thread
                   #'(lambda ()
@@ -120,9 +120,9 @@
   (accum-after-time 0.2 2)
   (accum-after-time 0.1 4)
   (setf *after-time-millisec* (get-internal-real-time))
-  (true-or-false? ___ (> (duration-ms) 500))
-  (true-or-false? ___ (< (duration-ms) 700))
-  (assert-equal *accum* ___))
+  (true-or-false? t (> (duration-ms) 500))
+  (true-or-false? t (< (duration-ms) 700))
+  (assert-equal *accum* 7))
 
 (define-test test-run-in-parallel
     "same program as above, executed in threads.  Sleeps are simultaneous"
@@ -135,9 +135,9 @@
     (bordeaux-threads:join-thread thread-2)
     (bordeaux-threads:join-thread thread-3))
   (setf *after-time-millisec* (get-internal-real-time))
-  (true-or-false? ___ (> (duration-ms) 200))
-  (true-or-false? ___  (< (duration-ms) 400))
-  (assert-equal *accum* ___))
+  (true-or-false? t (> (duration-ms) 200))
+  (true-or-false? t  (< (duration-ms) 400))
+  (assert-equal *accum* 7))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -154,7 +154,7 @@
                 "Main Thread"))
 
 (defun kill-thread-if-not-main (thread)
-" kills a given thread, unless the thread is the main thread.
+  " kills a given thread, unless the thread is the main thread.
  returns nil if thread is main.
  returns a 'terminated~' string otherwise"
   (unless (string-equal (bordeaux-threads:thread-name thread)
@@ -177,15 +177,15 @@
     "all-threads makes a list of all running threads in this lisp.  The sleep
      calls are necessary, as killed threads are not instantly removed from the
      list of all running threads."
-  (assert-equal ___ (length (bordeaux-threads:all-threads)))
+  (assert-equal 1 (length (bordeaux-threads:all-threads)))
   (kill-thread-if-not-main (spawn-looping-thread "NEVER CATCH ME~!  NYA NYA!"))
   (sleep 0.01)
-  (assert-equal ___ (length (bordeaux-threads:all-threads)))
+  (assert-equal 1 (length (bordeaux-threads:all-threads)))
   (spawn-three-loopers)
-  (assert-equal ___ (length (bordeaux-threads:all-threads)))
+  (assert-equal 4 (length (bordeaux-threads:all-threads)))
   (kill-spawned-threads)
   (sleep 0.01)
-  (assert-equal ___ (length (bordeaux-threads:all-threads))))
+  (assert-equal 1 (length (bordeaux-threads:all-threads))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -201,12 +201,12 @@
     "bindings are not inherited across threads"
   (let ((thread-ret-val (bordeaux-threads:join-thread
                          (bordeaux-threads:make-thread 'returns-v))))
-    (assert-equal thread-ret-val ____))
+    (assert-equal thread-ret-val 0))
   (let ((*v* "LEXICAL BOUND VALUE"))
-    (assert-equal *v* ____)
+    (assert-equal *v* "LEXICAL BOUND VALUE")
     (let ((thread-ret-val (bordeaux-threads:join-thread
                            (bordeaux-threads:make-thread 'returns-v))))
-      (assert-equal thread-ret-val ____))))
+      (assert-equal thread-ret-val 0))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -229,7 +229,7 @@
   (waits-and-increments-g)
   (waits-and-increments-g)
   (waits-and-increments-g)
-  (assert-equal *g* ___))
+  (assert-equal *g* 3))
 
 
 (define-test test-parallel-wait-and-increment
@@ -240,7 +240,7 @@
     (bordeaux-threads:join-thread thread-1)
     (bordeaux-threads:join-thread thread-2)
     (bordeaux-threads:join-thread thread-3)
-    (assert-equal *g* ___)))
+    (assert-equal *g* 1)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -266,24 +266,24 @@
     (bordeaux-threads:join-thread thread-1)
     (bordeaux-threads:join-thread thread-2)
     (bordeaux-threads:join-thread thread-3)
-    (assert-equal *g* ___)))
+    (assert-equal *g* 3)))
 
 ;;;;;;;;;;;;;;;;
 ;; Semaphores ;;
 ;;;;;;;;;;;;;;;;
 
 ;; Incrementing a semaphore is an atomic operation.
-(defvar *g-semaphore* (bordeaux-threads:make-semaphore :name "g" :count 0))
+(defvar *g-semaphore* (bt-sem:make-semaphore :name "g" :count 0))
 
 (defun semaphore-increments-g ()
-  (bordeaux-threads:signal-semaphore *g-semaphore*))
+  (bt-sem:signal-semaphore *g-semaphore*))
 
 (define-test test-increment-semaphore
     (assert-equal 0 (bt-semaphore:semaphore-count *g-semaphore*))
   (bordeaux-threads:join-thread (bordeaux-threads:make-thread 'semaphore-increments-g :name "S incrementor 1"))
   (bordeaux-threads:join-thread (bordeaux-threads:make-thread 'semaphore-increments-g :name "S incrementor 2"))
   (bordeaux-threads:join-thread (bordeaux-threads:make-thread 'semaphore-increments-g :name "S incrementor 3"))
-  (assert-equal ___ (bt-semaphore:semaphore-count *g-semaphore*)))
+  (assert-equal 3 (bt-sem:semaphore-count *g-semaphore*)))
 
 
 ;; Semaphores can be used to manage resource allocation, and to trigger
@@ -312,9 +312,9 @@
   (bt-semaphore:semaphore-count *apples*))
 
 (define-test test-orchard-simulation
-    (assert-equal (num-apples) ___)
+    (assert-equal (num-apples) 0)
   (let ((eater-thread (bordeaux-threads:make-thread 'apple-eater :name "apple eater thread")))
     (let ((grower-thread (bordeaux-threads:make-thread 'apple-grower :name "apple grower thread")))
       (bordeaux-threads:join-thread eater-thread)))
-  (assert-equal (aref *orchard-log* 0) ____)
-  (assert-equal (aref *orchard-log* 1) ____))
+  (assert-equal (aref *orchard-log* 0) "apple grown.")
+  (assert-equal (aref *orchard-log* 1) "apple eaten."))
